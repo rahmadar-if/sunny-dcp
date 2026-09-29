@@ -1,0 +1,53 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "ignoreDeprecations": "6.0",
+        "paths": {
+            "@/*": [
+                "resources/*"
+            ],
+            "@/js/*": [
+                "resources/js/*"
+            ],
+            "@/css/*": [
+                "resources/css/*"
+            ],
+            "@core/*": [
+                "vendor/solaris/solaris-laravel-core/resources/*"
+            ],
+            "@core-js/*": [
+                "vendor/solaris/solaris-laravel-core/resources/js/*"
+            ],
+            "@core-css/*": [
+                "vendor/solaris/solaris-laravel-core/resources/css/*"
+            ],
+            "@master-data/*": [
+                "vendor/solaris/solaris-laravel-masterdata/resources/*"
+            ],
+            "@master-data-js/*": [
+                "vendor/solaris/solaris-laravel-masterdata/resources/js/*"
+            ],
+            "@master-data-css/*": [
+                "vendor/solaris/solaris-laravel-masterdata/resources/css/*"
+            ],
+            "@base-crm/*": [
+                "vendor/solaris/solaris-laravel-basecrm/resources/*"
+            ],
+            "@base-crm-js/*": [
+                "vendor/solaris/solaris-laravel-basecrm/resources/js/*"
+            ],
+            "@base-crm-css/*": [
+                "vendor/solaris/solaris-laravel-basecrm/resources/css/*"
+            ],
+            "@marketing/*": [
+                "vendor/solaris/solaris-laravel-marketing/resources/*"
+            ],
+            "@marketing-js/*": [
+                "vendor/solaris/solaris-laravel-marketing/resources/js/*"
+            ],
+            "@marketing-css/*": [
+                "vendor/solaris/solaris-laravel-marketing/resources/css/*"
+            ]
+        }
+    }
+}
