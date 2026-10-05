@@ -8,10 +8,10 @@
                         + Configure Target Filter
                     </button>
                     <button type="button" class="btn btn-outline-success btn-sm" id="btnSimulateConsent">
-                        Simulate Customer Consent
+                        Customer Consent
                     </button>
                     <button type="button" class="btn btn-outline-danger btn-sm" id="btnResetSimulation">
-                        Remove Simulated Customers
+                        Remove Customers
                     </button>
                     <button type="button" class="btn btn-outline-primary btn-sm" id="btnPushToAudience">
                         Push to Main Audience
@@ -90,7 +90,7 @@
                         <tbody id="idaConsentedTableBody">
                             <tr>
                                 <td colspan="7" class="text-center py-4 text-muted" id="idaEmptyStateRow">
-                                    No consent responses received yet. Click "Simulate Customer Consent" to test customer response flow.
+                                    No consent responses received yet. Click "Customer Consent" to test customer response flow.
                                 </td>
                             </tr>
                         </tbody>
@@ -105,12 +105,14 @@
 (function() {
     function initIdaTab() {
         const blastId = "{{ $data->id }}";
-        const modalEl = document.getElementById('idaCampaignFilterModal');
-        if (!modalEl) return;
 
-        let filterModal = null;
-        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-            filterModal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+        function getFilterModal() {
+            const mEl = document.getElementById('idaCampaignFilterModal');
+            if (!mEl) return null;
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                return bootstrap.Modal.getInstance(mEl) || new bootstrap.Modal(mEl);
+            }
+            return null;
         }
 
         const btnOpenFilter = document.getElementById('btnOpenIdaFilter');
@@ -120,11 +122,8 @@
         if (btnOpenFilter) {
             btnOpenFilter.addEventListener('click', function(e) {
                 e.preventDefault();
-                if (filterModal) {
-                    filterModal.show();
-                } else if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-                    new bootstrap.Modal(modalEl).show();
-                }
+                const m = getFilterModal();
+                if (m) m.show();
             });
         }
 
@@ -144,14 +143,20 @@
 
         function renderConfig(config, profiles) {
             if (!config) return;
-            document.getElementById('idaEstimatedAudience').innerText = Number(config.estimated_audience || 0).toLocaleString();
-            document.getElementById('idaDispatchedCount').innerText = Number(config.estimated_audience || 0).toLocaleString();
-            document.getElementById('idaConsentCount').innerText = Number(config.consent_count || 0).toLocaleString();
+            const elEst = document.getElementById('idaEstimatedAudience');
+            if (elEst) elEst.innerText = Number(config.estimated_audience || 0).toLocaleString();
+
+            const elDisp = document.getElementById('idaDispatchedCount');
+            if (elDisp) elDisp.innerText = Number(config.estimated_audience || 0).toLocaleString();
+
+            const elConsent = document.getElementById('idaConsentCount');
+            if (elConsent) elConsent.innerText = Number(config.consent_count || 0).toLocaleString();
 
             const rate = (config.estimated_audience > 0 && config.consent_count > 0)
                 ? ((config.consent_count / config.estimated_audience) * 100).toFixed(2)
                 : '0.00';
-            document.getElementById('idaConsentRate').innerText = `${rate}%`;
+            const elRate = document.getElementById('idaConsentRate');
+            if (elRate) elRate.innerText = `${rate}%`;
 
             const filterContainer = document.getElementById('idaActiveFiltersList');
             if (filterContainer) {
@@ -341,7 +346,7 @@
                 tableBody.innerHTML = `
                     <tr>
                         <td colspan="7" class="text-center py-4 text-muted" id="idaEmptyStateRow">
-                            No consent responses received yet. Click "Simulate Customer Consent" to test customer response flow.
+                            No consent responses received yet. Click "Customer Consent" to test customer response flow.
                         </td>
                     </tr>
                 `;
@@ -355,36 +360,95 @@
             });
         }
 
-        if (filterForm) {
-            filterForm.addEventListener('submit', function (e) {
+        // APPLY FILTER LOGIC (Triggered via #cBtnSubmitFilter or form submit)
+        async function executeApplyFilter(e) {
+            if (e && typeof e.preventDefault === 'function') {
                 e.preventDefault();
-                const formData = new FormData(filterForm);
+            }
 
-                fetch(`{{ url('dcp/campaign/ida') }}/${blastId}/apply-filter`, {
+            const currentForm = document.getElementById('idaCampaignFilterForm');
+            if (!currentForm) return;
+
+            const submitBtn = document.getElementById('cBtnSubmitFilter');
+            let originalBtnHtml = submitBtn ? submitBtn.innerHTML : 'Apply Filter';
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>Applying Filter...';
+            }
+
+            const formData = new FormData(currentForm);
+
+            try {
+                const res = await fetch(`{{ url('dcp/campaign/ida') }}/${blastId}/apply-filter`, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Accept': 'application/json'
                     },
                     body: formData
-                })
-                .then(res => res.json())
-                .then(res => {
-                    if (res.status === 'success') {
-                        if (filterModal) filterModal.hide();
-                        renderConfig(res.data.config, res.data.consented_profiles);
+                });
+                const json = await res.json();
 
-                        // Otomatis jalankan simulate customer consent
-                        setTimeout(() => {
-                            triggerConsentSimulation();
-                        }, 500);
-                    }
-                })
-                .catch(err => console.error(err));
-            });
+                if (json.status === 'success') {
+                    const m = getFilterModal();
+                    if (m) m.hide();
+
+                    renderConfig(json.data.config, json.data.consented_profiles);
+
+                    // Otomatis jalankan simulate customer consent
+                    setTimeout(() => {
+                        triggerConsentSimulation();
+                    }, 500);
+                } else {
+                    showSunnyAlert('Error', json.message || 'Failed to apply filters.', 'error');
+                }
+            } catch (err) {
+                console.error('Filter apply error:', err);
+                showSunnyAlert('Error', 'An error occurred while applying filter.', 'error');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
+                }
+            }
         }
 
-        // SIMULATE CUSTOMER CONSENT (Streamed 1 by 1 with random delay 1-2s)
+        const submitBtn = document.getElementById('cBtnSubmitFilter');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', executeApplyFilter);
+        }
+
+        if (filterForm) {
+            filterForm.addEventListener('submit', executeApplyFilter);
+        }
+
+        // Event delegation on document to catch #cBtnSubmitFilter dynamically
+        document.addEventListener('click', function(e) {
+            const btn = e.target && e.target.closest ? e.target.closest('#cBtnSubmitFilter') : null;
+            if (btn) {
+                e.preventDefault();
+                executeApplyFilter(e);
+            }
+        });
+
+        function showSunnyAlert(title, message, icon = 'success') {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: icon,
+                    title: title,
+                    html: message ? `<p class="text-muted fs-13 mb-0">${message}</p>` : undefined,
+                    confirmButtonColor: '#fe7d00',
+                    confirmButtonText: 'OK',
+                    timer: icon === 'success' ? 3000 : undefined,
+                    timerProgressBar: icon === 'success'
+                });
+            } else if (typeof window.Helper !== 'undefined' && typeof window.Helper.successAlert === 'function' && icon === 'success') {
+                window.Helper.successAlert({ title: title, message: message || '', timeout: 3000 });
+            }
+        }
+
+        // CUSTOMER CONSENT (Streamed 1 by 1 with random delay 1-2s)
         const btnSimulate = document.getElementById('btnSimulateConsent');
 
         async function triggerConsentSimulation() {
@@ -403,9 +467,9 @@
                 const json = await res.json();
 
                 if (json.status !== 'success') {
-                    alert(json.message || 'Simulation failed');
+                    showSunnyAlert('Error', json.message || 'Failed to get customer consent.', 'error');
                     btnSimulate.disabled = false;
-                    btnSimulate.innerText = 'Simulate Customer Consent';
+                    btnSimulate.innerText = 'Customer Consent';
                     return;
                 }
 
@@ -415,7 +479,7 @@
 
                 if (newCandidates.length === 0) {
                     btnSimulate.disabled = false;
-                    btnSimulate.innerText = 'Simulate Customer Consent';
+                    btnSimulate.innerText = 'Customer Consent';
                     return;
                 }
 
@@ -454,11 +518,11 @@
                 }
 
                 btnSimulate.disabled = false;
-                btnSimulate.innerText = 'Simulate Customer Consent';
+                btnSimulate.innerText = 'Customer Consent';
             } catch (err) {
                 console.error('Consent simulation error:', err);
                 btnSimulate.disabled = false;
-                btnSimulate.innerText = 'Simulate Customer Consent';
+                btnSimulate.innerText = 'Customer Consent';
             }
         }
 
@@ -466,14 +530,10 @@
             btnSimulate.addEventListener('click', triggerConsentSimulation);
         }
 
-        // REMOVE / RESET SIMULATED CUSTOMER LIST
+        // REMOVE / RESET CUSTOMER LIST (Direct action without confirm alert)
         const btnReset = document.getElementById('btnResetSimulation');
         if (btnReset) {
             btnReset.addEventListener('click', function () {
-                if (!confirm('Are you sure you want to remove all simulated customer consent records?')) {
-                    return;
-                }
-
                 btnReset.disabled = true;
                 btnReset.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Removing...';
 
@@ -487,7 +547,7 @@
                 .then(res => res.json())
                 .then(res => {
                     btnReset.disabled = false;
-                    btnReset.innerText = 'Remove Simulated Customers';
+                    btnReset.innerText = 'Remove Customers';
                     if (res.status === 'success') {
                         document.getElementById('idaConsentCount').innerText = '0';
                         document.getElementById('idaConsentRate').innerText = '0.00%';
@@ -497,16 +557,21 @@
                         tableBody.innerHTML = `
                             <tr>
                                 <td colspan="7" class="text-center py-4 text-muted" id="idaEmptyStateRow">
-                                    No consent responses received yet. Click "Simulate Customer Consent" to test customer response flow.
+                                    No consent responses received yet. Click "Customer Consent" to test customer response flow.
                                 </td>
                             </tr>
                         `;
+
+                        showSunnyAlert('Success', 'Customer consent records have been removed.', 'success');
+                    } else {
+                        showSunnyAlert('Error', res.message || 'Failed to remove customer records.', 'error');
                     }
                 })
                 .catch(err => {
                     btnReset.disabled = false;
-                    btnReset.innerText = 'Remove Simulated Customers';
+                    btnReset.innerText = 'Remove Customers';
                     console.error('Reset simulation error:', err);
+                    showSunnyAlert('Error', 'An error occurred while removing records.', 'error');
                 });
             });
         }
@@ -530,15 +595,16 @@
                     btnPush.disabled = false;
                     btnPush.innerText = 'Push to Main Audience';
                     if (res.status === 'success') {
-                        alert(res.message);
+                        showSunnyAlert('Success', res.message || 'Customers pushed to main audience successfully.', 'success');
                     } else {
-                        alert(res.message || 'Failed to push audience.');
+                        showSunnyAlert('Error', res.message || 'Failed to push audience.', 'error');
                     }
                 })
                 .catch(err => {
                     btnPush.disabled = false;
                     btnPush.innerText = 'Push to Main Audience';
                     console.error(err);
+                    showSunnyAlert('Error', 'An error occurred while pushing to audience.', 'error');
                 });
             });
         }

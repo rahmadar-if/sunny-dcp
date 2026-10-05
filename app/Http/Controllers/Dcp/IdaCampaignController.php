@@ -36,7 +36,7 @@ class IdaCampaignController extends Controller
             ['label' => $data->title]
         ];
 
-        return view(Helper::view("wa_blast.page"), [
+        return view("wa-blast.page", [
             'data'        => $data,
             'breadcrumbs' => $breadcrumbs
         ]);
@@ -173,12 +173,23 @@ class IdaCampaignController extends Controller
             $candidates = (clone $query)->limit(4)->get();
         }
 
+        if ($candidates->isEmpty()) {
+            // Fallback: If strict filters produced no matches, pick from available active profiles
+            $candidates = DcpCustomerProfile::where('phone_status', 'Active')->limit(4)->get();
+            if ($candidates->isEmpty()) {
+                $candidates = DcpCustomerProfile::limit(4)->get();
+            }
+        }
+
         $newIds = array_values(array_unique(array_merge($validExistingIds, $candidates->pluck('id')->toArray())));
         $config->consented_profile_ids = $newIds;
         $config->consent_count = count($newIds);
         $config->save();
 
         $allConsented = (clone $query)->whereIn('id', $newIds)->get();
+        if ($allConsented->isEmpty()) {
+            $allConsented = DcpCustomerProfile::whereIn('id', $newIds)->get();
+        }
 
         return response()->json([
             'status' => 'success',

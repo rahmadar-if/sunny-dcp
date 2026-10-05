@@ -699,7 +699,7 @@ return [
             ],
             "wa_blast" => [
                 "list" => "marketing::pages.wa-blast.list",
-                "page" => "marketing::pages.wa-blast.page",
+                "page" => "wa-blast.page",
             ],
             "wa_template" => [
                 "list" => "marketing::pages.wa-template.list",

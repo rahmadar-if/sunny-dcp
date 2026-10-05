@@ -11,7 +11,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             
-            <form id="idaCampaignFilterForm">
+            <form id="idaCampaignFilterForm" onsubmit="return false;">
                 <div class="modal-body p-4">
                     <!-- Vertical Accordion / Collapse Layout (No Tabs) -->
                     <div class="accordion d-flex flex-column gap-3" id="enrichmentFilterAccordion">
@@ -456,7 +456,7 @@
 
                 <div class="modal-footer bg-light py-2 px-4">
                     <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary btn-sm px-4" id="cBtnSubmitFilter">
+                    <button type="button" class="btn btn-primary btn-sm px-4" id="cBtnSubmitFilter">
                         Apply Filter
                     </button>
                 </div>
