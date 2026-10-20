@@ -53,7 +53,7 @@ class IdaCampaignController extends Controller
                 'filters' => [
                     'gender' => 'All',
                 ],
-                'estimated_audience' => 15420,
+                'estimated_audience' => 1600,
                 'consent_count' => 0,
                 'consented_profile_ids' => [],
             ]
@@ -120,17 +120,17 @@ class IdaCampaignController extends Controller
             'phone_status' => $request->input('phone_status', 'Active'),
         ];
 
-        // Dynamic estimated audience count based on filters
-        $multiplier = 14200;
-        if (!empty($filters['top_application'])) $multiplier += count($filters['top_application']) * 2400;
-        if (!empty($filters['residential_area'])) $multiplier += count($filters['residential_area']) * 3200;
-        if (!empty($filters['city'])) $multiplier += count($filters['city']) * 1800;
-        if (!empty($filters['competitor_product'])) $multiplier += count($filters['competitor_product']) * 2100;
+        // Dynamic estimated audience count based on filters (scaled to ~1,600 target)
+        $multiplier = 1420;
+        if (!empty($filters['top_application'])) $multiplier += count($filters['top_application']) * 240;
+        if (!empty($filters['residential_area'])) $multiplier += count($filters['residential_area']) * 320;
+        if (!empty($filters['city'])) $multiplier += count($filters['city']) * 180;
+        if (!empty($filters['competitor_product'])) $multiplier += count($filters['competitor_product']) * 210;
         if ($filters['gender'] !== 'All') $multiplier = (int) round($multiplier * 0.55);
         if ($filters['min_credit_score'] > 750) $multiplier = (int) round($multiplier * 0.65);
 
         $config->filters = $filters;
-        $config->estimated_audience = max(1200, $multiplier);
+        $config->estimated_audience = max(120, $multiplier);
 
         // Prune existing consented IDs to only retain those matching the newly selected filters
         $matchingProfiles = $this->idaService->queryAudience($filters)
@@ -165,19 +165,20 @@ class IdaCampaignController extends Controller
         $existingIds = $config->consented_profile_ids ?? [];
         $validExistingIds = (clone $query)->whereIn('id', $existingIds)->pluck('id')->toArray();
 
-        // Pick new matching candidates not yet consented
-        $candidates = (clone $query)->whereNotIn('id', $validExistingIds)->limit(4)->get();
+        // Pick new matching candidates not yet consented (random batch between 15 and 20)
+        $batchLimit = rand(15, 20);
+        $candidates = (clone $query)->whereNotIn('id', $validExistingIds)->limit($batchLimit)->get();
 
         if ($candidates->isEmpty()) {
-            // If all matching have been consented, take top 4 matching
-            $candidates = (clone $query)->limit(4)->get();
+            // If all matching have been consented, take top matching batch
+            $candidates = (clone $query)->limit($batchLimit)->get();
         }
 
         if ($candidates->isEmpty()) {
             // Fallback: If strict filters produced no matches, pick from available active profiles
-            $candidates = DcpCustomerProfile::where('phone_status', 'Active')->limit(4)->get();
+            $candidates = DcpCustomerProfile::where('phone_status', 'Active')->limit($batchLimit)->get();
             if ($candidates->isEmpty()) {
-                $candidates = DcpCustomerProfile::limit(4)->get();
+                $candidates = DcpCustomerProfile::limit($batchLimit)->get();
             }
         }
 

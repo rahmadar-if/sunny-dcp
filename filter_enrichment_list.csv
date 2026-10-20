@@ -1,0 +1,115 @@
+Section,Filter Field,Pilihan Opsi / Nilai Input,Tipe Input di UI,Keterangan
+Customer Profile Data,Gender,All,Radio Button,Pilihan default
+Customer Profile Data,Gender,Male,Radio Button,Pria
+Customer Profile Data,Gender,Female,Radio Button,Wanita
+Customer Profile Data,Age Range,Min Age (contoh: 21),Number Input,Usia minimal
+Customer Profile Data,Age Range,Max Age (contoh: 55),Number Input,Usia maksimal
+Customer Profile Data,Residential Area / Class,High Class,Checkbox,SES Atas / Perumahan elit
+Customer Profile Data,Residential Area / Class,Middle Class,Checkbox,SES Menengah
+Customer Profile Data,Residential Area / Class,Low Class,Checkbox,SES Mass / Bawah
+Customer Profile Data,Region / City,Seluruh Indonesia (All),Checkbox / Multi-select,Nasional
+Customer Profile Data,Region / City,Seluruh Pulau Jawa,Checkbox / Multi-select,Cakupan pulau
+Customer Profile Data,Region / City,Jabodetabek,Checkbox / Multi-select,Aglomerasi
+Customer Profile Data,Region / City,Jakarta,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Bogor,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Depok,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Tangerang,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Tangerang Selatan,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Bekasi,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Banten,Checkbox / Multi-select,Provinsi / Area
+Customer Profile Data,Region / City,Bandung,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Cirebon,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Semarang,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Solo (Surakarta),Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Yogyakarta,Checkbox / Multi-select,Kota / Provinsi
+Customer Profile Data,Region / City,Surabaya,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Malang,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Sidoarjo,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Bali,Checkbox / Multi-select,Pulau / Provinsi
+Customer Profile Data,Region / City,Denpasar,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Lombok / NTB,Checkbox / Multi-select,Wilayah
+Customer Profile Data,Region / City,NTT (Labuan Bajo & Kupang),Checkbox / Multi-select,Wilayah
+Customer Profile Data,Region / City,Seluruh Sumatera,Checkbox / Multi-select,Cakupan pulau
+Customer Profile Data,Region / City,Medan,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Batam,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Pekanbaru,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Palembang,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Bandar Lampung,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Seluruh Kalimantan,Checkbox / Multi-select,Cakupan pulau
+Customer Profile Data,Region / City,Balikpapan,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Samarinda,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Kawasan IKN,Checkbox / Multi-select,Kawasan khusus
+Customer Profile Data,Region / City,Banjarmasin,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Pontianak,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Seluruh Sulawesi,Checkbox / Multi-select,Cakupan pulau
+Customer Profile Data,Region / City,Makassar,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Manado,Checkbox / Multi-select,Kota
+Customer Profile Data,Region / City,Maluku & Papua,Checkbox / Multi-select,Wilayah
+Customer Profile Data,Region / City,Jayapura,Checkbox / Multi-select,Kota
+Customer Profile Data,Job & Workplace,"Bebas (e.g. Director, Manager, Tech, Banking, BUMN, ASN, Guru)",Text Input,Input teks fleksibel
+Customer Profile Data,Social Media Interest,Short Video & Entertainment (TikTok / Reels),Checkbox,Kategori sosmed
+Customer Profile Data,Social Media Interest,Visual & Lifestyle (Instagram),Checkbox,Kategori sosmed
+Customer Profile Data,Social Media Interest,Professional & Career (LinkedIn),Checkbox,Kategori sosmed
+Customer Profile Data,Social Media Interest,News & Discussion (X / Twitter),Checkbox,Kategori sosmed
+Customer Profile Data,Social Media Interest,Instant Messaging Active (WhatsApp / Telegram),Checkbox,Kategori sosmed
+Behavior Data,Top Application Category,Marketplace & E-Commerce,Checkbox,"Pengganti Tokopedia, Shopee, dll."
+Behavior Data,Top Application Category,Sports & Fitness Tracker,Checkbox,"Pengganti Strava, Nike Run, dll."
+Behavior Data,Top Application Category,Mobile Banking & Keuangan,Checkbox,"Pengganti BCA Mobile, Livin, dll."
+Behavior Data,Top Application Category,E-Wallet & Digital Payment,Checkbox,"GoPay, OVO, Dana"
+Behavior Data,Top Application Category,Investasi & Saham,Checkbox,"Bibit, Stockbit, dll."
+Behavior Data,Top Application Category,Music & Audio Streaming,Checkbox,"Pengganti Spotify, Apple Music"
+Behavior Data,Top Application Category,Video Streaming & VOD,Checkbox,"Netflix, YouTube, Vidio"
+Behavior Data,Top Application Category,Food Delivery & Ojek Online,Checkbox,"Gojek, Grab"
+Behavior Data,Top Application Category,Travel & Tiket Online,Checkbox,"Traveloka, Tiket.com"
+Behavior Data,Top Application Category,Mobile Gaming,Checkbox,"MLBB, PUBG, dll."
+Behavior Data,Buying Power,Ultra High,Checkbox,Pengeluaran data/pulsa & daya beli tertinggi
+Behavior Data,Buying Power,High,Checkbox,Daya beli tinggi
+Behavior Data,Buying Power,Medium,Checkbox,Daya beli menengah
+Behavior Data,Buying Power,Low,Checkbox,Daya beli standar/mass
+Behavior Data,Competitor Product Usage,Telkomsel,Checkbox,Indikator multi-SIM / kompetitor
+Behavior Data,Competitor Product Usage,XL Axiata,Checkbox,Indikator multi-SIM / kompetitor
+Behavior Data,Competitor Product Usage,Smartfren,Checkbox,Indikator multi-SIM / kompetitor
+Behavior Data,Competitor Product Usage,Indosat / IM3,Checkbox,Pengguna jaringan Indosat
+Behavior Data,Phone & Device Type,Apple iPhone,Checkbox,Merk HP populer
+Behavior Data,Phone & Device Type,Samsung,Checkbox,Merk HP populer
+Behavior Data,Phone & Device Type,Xiaomi,Checkbox,Merk HP populer
+Behavior Data,Phone & Device Type,Oppo,Checkbox,Merk HP populer
+Behavior Data,Phone & Device Type,Vivo,Checkbox,Merk HP populer
+Behavior Data,Phone & Device Type,Realme,Checkbox,Merk HP populer
+Behavior Data,Phone & Device Type,Infinix / Transsion,Checkbox,Merk HP populer
+Behavior Data,Phone & Device Type,Google Pixel,Checkbox,Merk HP
+Behavior Data,Phone & Device Type,Other Brands,Checkbox,Merk lainnya
+Behavior Data,Preferred Banks / FinTech,Bank BCA,Checkbox,Transaksi / ekosistem perbankan
+Behavior Data,Preferred Banks / FinTech,Bank Mandiri,Checkbox,Transaksi / ekosistem perbankan
+Behavior Data,Preferred Banks / FinTech,Bank BRI,Checkbox,Transaksi / ekosistem perbankan
+Behavior Data,Preferred Banks / FinTech,Bank BNI,Checkbox,Transaksi / ekosistem perbankan
+Behavior Data,Preferred Banks / FinTech,Bank CIMB Niaga,Checkbox,Transaksi / ekosistem perbankan
+Behavior Data,Preferred Banks / FinTech,Bank Digital / Neobank,Checkbox,"Jago, SeaBank, Jenius, Blu"
+Behavior Data,Frequently Visited Places (POI),Area Perkantoran & SCBD / CBD,Checkbox,Gedung kantor pusat
+Behavior Data,Frequently Visited Places (POI),Mall & Shopping Center Mewah,Checkbox,"Plaza Senayan, GI, dsb."
+Behavior Data,Frequently Visited Places (POI),Kawasan Olahraga (GBK & Sport Venues),Checkbox,Area lari & outdoor
+Behavior Data,Frequently Visited Places (POI),Bandara & Stasiun Kereta Cepat,Checkbox,Mobilitas tinggi / traveler
+Behavior Data,Frequently Visited Places (POI),Kawasan Universitas / Kampus,Checkbox,Mahasiswa & akademisi
+Behavior Data,Most Purchased Products / Interest,Perlengkapan Olahraga & Sepatu Lari,Checkbox,Kategori belanja
+Behavior Data,Most Purchased Products / Interest,Smartwatch & Gadget Tech,Checkbox,Kategori belanja
+Behavior Data,Most Purchased Products / Interest,Fine Dining & Kuliner Lifestyle,Checkbox,Kategori belanja
+Behavior Data,Most Purchased Products / Interest,Tiket Pesawat & Traveling,Checkbox,Kategori belanja
+Behavior Data,Most Purchased Products / Interest,Fashion & Pakaian Branded,Checkbox,Kategori belanja
+Eligibility Check,Risk Exclusions,Exclude Gambling Indicators,Checkbox,Hindari nomor berpola judi online
+Eligibility Check,Risk Exclusions,Exclude Blacklist,Checkbox,Hindari nomor fraud / bermasalah
+Eligibility Check,Risk Exclusions,Exclude Negative Credit / Gagal Bayar,Checkbox,Hindari histori kredit buruk
+Eligibility Check,Payment History,Smooth / Lancar,Checkbox,Histori tagihan lancar
+Eligibility Check,Payment History,On-time / Tepat Waktu,Checkbox,Tidak pernah telat
+Eligibility Check,Payment History,Late > 30 Days,Checkbox,Riwayat telat bayar
+Eligibility Check,Outstanding Limit,No Limit,Dropdown,Tanpa batas limit
+Eligibility Check,Outstanding Limit,< Rp 5.000.000,Dropdown,Limit tagihan aktif
+Eligibility Check,Outstanding Limit,< Rp 10.000.000,Dropdown,Limit tagihan aktif
+Eligibility Check,Outstanding Limit,< Rp 20.000.000,Dropdown,Limit tagihan aktif
+Eligibility Check,Outstanding Limit,> Rp 20.000.000,Dropdown,Limit tagihan tinggi
+Eligibility Check,Fraud Risk Level,Low Risk,Checkbox,Profil nomor sangat aman
+Eligibility Check,Fraud Risk Level,Medium Risk,Checkbox,Profil nomor risiko sedang
+Eligibility Check,Fraud Risk Level,High Risk,Checkbox,Profil nomor risiko tinggi
+Eligibility Check,Phone Line Status,Active Lines Only,Checkbox,Hanya nomor aktif (bukan masa tenggang)
+Eligibility Check,Line Tenure / Usia Nomor,> 1 Tahun Aktif,Checkbox,Nomor stabil / nomor utama
+Eligibility Check,Line Subscription,Pascabayar (Postpaid) Saja,Checkbox,Pelanggan langganan prioritas
+Eligibility Check,Line Subscription,Prabayar (Prepaid),Checkbox,Pelanggan isi ulang
