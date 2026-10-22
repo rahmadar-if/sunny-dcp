@@ -98,12 +98,18 @@ class IdaCampaignController extends Controller
             'residential_area' => $request->input('residential_area', []),
             'city' => $request->input('city', []),
             'gender' => $request->input('gender', 'All'),
-            'age_min' => $request->filled('age_min') ? (int) $request->input('age_min') : null,
-            'age_max' => $request->filled('age_max') ? (int) $request->input('age_max') : null,
+            'age_min' => $request->filled('age_min') ? (int) $request->input('age_min') : 18,
+            'age_max' => $request->filled('age_max') ? (int) $request->input('age_max') : 70,
+            'life_phase' => $request->input('life_phase', []),
+            'search_by_area' => is_array($request->input('search_by_area')) ? $request->input('search_by_area') : ($request->filled('search_by_area') ? [$request->input('search_by_area')] : []),
+            'income' => $request->input('income', []),
 
             // Behavior Data
             'frequently_visited_places' => $request->input('frequently_visited_places', []),
             'most_purchased_products' => $request->input('most_purchased_products', []),
+            'interest' => $request->input('interest', []),
+            'banking_behavior' => $request->input('banking_behavior', []),
+            'lifestyle' => $request->input('lifestyle', []),
             'buying_power' => $request->input('buying_power', []),
             'preferred_banks' => $request->input('preferred_banks', []),
             'top_application' => $request->input('top_application', []),
@@ -117,14 +123,19 @@ class IdaCampaignController extends Controller
             'fraud_risk' => $request->input('fraud_risk', []),
             'exclude_gambling' => $request->has('exclude_gambling') && $request->boolean('exclude_gambling'),
             'exclude_blacklist' => $request->has('exclude_blacklist') && $request->boolean('exclude_blacklist'),
+            'exclude_negative_credit' => $request->has('exclude_negative_credit') && $request->boolean('exclude_negative_credit'),
             'phone_status' => $request->input('phone_status', 'Active'),
+            'subscription_type' => $request->input('subscription_type', []),
         ];
 
         // Dynamic estimated audience count based on filters (scaled to ~1,600 target)
         $multiplier = 1420;
         if (!empty($filters['top_application'])) $multiplier += count($filters['top_application']) * 240;
+        if (!empty($filters['interest'])) $multiplier += count($filters['interest']) * 190;
         if (!empty($filters['residential_area'])) $multiplier += count($filters['residential_area']) * 320;
-        if (!empty($filters['city'])) $multiplier += count($filters['city']) * 180;
+        if (!empty($filters['city'])) $multiplier += count((array) $filters['city']) * 180;
+        if (!empty($filters['search_by_area'])) $multiplier += count((array) $filters['search_by_area']) * 160;
+        if (!empty($filters['income'])) $multiplier += count((array) $filters['income']) * 180;
         if (!empty($filters['competitor_product'])) $multiplier += count($filters['competitor_product']) * 210;
         if ($filters['gender'] !== 'All') $multiplier = (int) round($multiplier * 0.55);
         if ($filters['min_credit_score'] > 750) $multiplier = (int) round($multiplier * 0.65);

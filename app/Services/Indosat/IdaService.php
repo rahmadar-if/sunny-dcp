@@ -98,7 +98,55 @@ class IdaService
             $cities = (array) $input['city'];
             $query->where(function ($q) use ($cities) {
                 foreach ($cities as $c) {
-                    $q->orWhere('city', 'ilike', '%' . $c . '%');
+                    if (str_contains($c, 'Seluruh') || str_contains($c, 'All')) {
+                        // Blanket nationwide/island scope - match any valid records
+                        $q->orWhereNotNull('city');
+                    } else {
+                        $q->orWhere('city', 'ilike', '%' . $c . '%');
+                    }
+                }
+            });
+        }
+
+        // Search by Area (Sub-City / District)
+        if (!empty($input['search_by_area'])) {
+            $areas = (array) $input['search_by_area'];
+            $query->where(function ($q) use ($areas) {
+                foreach ($areas as $area) {
+                    $q->orWhere('city', 'ilike', '%' . $area . '%')
+                      ->orWhere('residential_area', 'ilike', '%' . $area . '%')
+                      ->orWhere('frequently_visited_places', 'ilike', '%' . $area . '%');
+                }
+            });
+        }
+
+        // Life Phase & Occupation (Smart Telco Mapping)
+        if (!empty($input['life_phase'])) {
+            $phases = (array) $input['life_phase'];
+            $query->where(function ($q) use ($phases) {
+                foreach ($phases as $ph) {
+                    $phNorm = strtolower(trim($ph));
+                    if (str_contains($phNorm, 'employee') || str_contains($phNorm, 'pekerja') || str_contains($phNorm, 'karyawan')) {
+                        // Any professional/employee: has job_title or company
+                        $q->orWhereNotNull('job_title')
+                          ->orWhereNotNull('company')
+                          ->orWhere('tags', 'ilike', '%Employee%')
+                          ->orWhere('tags', 'ilike', '%Professional%')
+                          ->orWhere('tags', 'ilike', '%C-Level%');
+                    } elseif (str_contains($phNorm, 'higher') || str_contains($phNorm, 'kuliah') || str_contains($phNorm, 'mahasiswa')) {
+                        $q->orWhere('job_title', 'ilike', '%Mahasiswa%')
+                          ->orWhere('job_title', 'ilike', '%Student%')
+                          ->orWhere('tags', 'ilike', '%Mahasiswa%')
+                          ->orWhere('tags', 'ilike', '%Higher Education%');
+                    } elseif (str_contains($phNorm, 'school') || str_contains($phNorm, 'pelajar') || str_contains($phNorm, 'sma')) {
+                        $q->orWhere('job_title', 'ilike', '%Pelajar%')
+                          ->orWhere('job_title', 'ilike', '%Siswa%')
+                          ->orWhere('tags', 'ilike', '%Pelajar%')
+                          ->orWhere('tags', 'ilike', '%Student%');
+                    } else {
+                        $q->orWhere('job_title', 'ilike', '%' . $ph . '%')
+                          ->orWhere('tags', 'ilike', '%' . $ph . '%');
+                    }
                 }
             });
         }
@@ -116,6 +164,98 @@ class IdaService
             $query->where('age', '<=', (int) $input['age_max']);
         }
 
+        // Search by Income (< 1 Juta, 1-10 Juta, 10-100 Juta, 100 Juta-1 M)
+        if (!empty($input['income'])) {
+            $incomes = (array) $input['income'];
+            $query->where(function ($q) use ($incomes) {
+                foreach ($incomes as $inc) {
+                    $q->orWhere('tags', 'ilike', '%' . $inc . '%')
+                      ->orWhere('buying_power', 'ilike', '%' . $inc . '%');
+                }
+            });
+        }
+
+        // Age Group (< 18 y.o, 18-24 y.o, 25-34 y.o, 35-50 y.o, > 50 y.o)
+        if (!empty($input['age_group'])) {
+            $groups = (array) $input['age_group'];
+            $query->where(function ($q) use ($groups) {
+                foreach ($groups as $grp) {
+                    if (str_contains($grp, '< 18')) {
+                        $q->orWhere('age', '<', 18);
+                    } elseif (str_contains($grp, '18-24')) {
+                        $q->orWhereBetween('age', [18, 24]);
+                    } elseif (str_contains($grp, '25-34')) {
+                        $q->orWhereBetween('age', [25, 34]);
+                    } elseif (str_contains($grp, '35-50')) {
+                        $q->orWhereBetween('age', [35, 50]);
+                    } elseif (str_contains($grp, '> 50')) {
+                        $q->orWhere('age', '>', 50);
+                    }
+                }
+            });
+        }
+
+        // Location Based (Tier, Anchor, Type - Smart Mapping)
+        if (!empty($input['location_tier'])) {
+            $tiers = (array) $input['location_tier'];
+            $query->where(function ($q) use ($tiers) {
+                foreach ($tiers as $t) {
+                    $tNorm = strtolower(trim($t));
+                    if (str_contains($tNorm, 'high')) {
+                        $q->orWhere('residential_area', 'ilike', '%High%')
+                          ->orWhere('buying_power', 'ilike', '%High%');
+                    } elseif (str_contains($tNorm, 'med')) {
+                        $q->orWhere('residential_area', 'ilike', '%Middle%')
+                          ->orWhere('residential_area', 'ilike', '%Med%')
+                          ->orWhere('buying_power', 'ilike', '%Med%');
+                    } elseif (str_contains($tNorm, 'low')) {
+                        $q->orWhere('residential_area', 'ilike', '%Low%')
+                          ->orWhere('buying_power', 'ilike', '%Low%');
+                    } else {
+                        $q->orWhere('residential_area', 'ilike', '%' . $t . '%');
+                    }
+                }
+            });
+        }
+        if (!empty($input['location_anchor'])) {
+            $anchors = (array) $input['location_anchor'];
+            $query->where(function ($q) use ($anchors) {
+                foreach ($anchors as $anc) {
+                    $ancNorm = strtolower(trim($anc));
+                    if (str_contains($ancNorm, 'home')) {
+                        $q->orWhereNotNull('residential_area')
+                          ->orWhere('tags', 'ilike', '%Home%');
+                    } elseif (str_contains($ancNorm, 'work')) {
+                        $q->orWhereNotNull('company')
+                          ->orWhere('tags', 'ilike', '%Office%')
+                          ->orWhere('tags', 'ilike', '%Work%');
+                    } else {
+                        $q->orWhere('tags', 'ilike', '%' . $anc . '%');
+                    }
+                }
+            });
+        }
+        if (!empty($input['residential_type'])) {
+            $rTypes = (array) $input['residential_type'];
+            $query->where(function ($q) use ($rTypes) {
+                foreach ($rTypes as $rt) {
+                    $rtNorm = strtolower(trim($rt));
+                    if (str_contains($rtNorm, 'housing') || str_contains($rtNorm, 'komplek')) {
+                        $q->orWhere('residential_area', 'ilike', '%Class%')
+                          ->orWhere('tags', 'ilike', '%Housing%')
+                          ->orWhere('tags', 'ilike', '%Complex%');
+                    } elseif (str_contains($rtNorm, 'industr')) {
+                        $q->orWhere('tags', 'ilike', '%Industrial%')
+                          ->orWhere('city', 'ilike', '%Cikarang%')
+                          ->orWhere('city', 'ilike', '%Karawang%');
+                    } else {
+                        $q->orWhere('residential_area', 'ilike', '%' . $rt . '%')
+                          ->orWhere('tags', 'ilike', '%' . $rt . '%');
+                    }
+                }
+            });
+        }
+
         // ==========================================
         // 2. BEHAVIOR DATA (Slide 4 & 6)
         // ==========================================
@@ -130,12 +270,93 @@ class IdaService
             });
         }
 
-        // Most Purchased Products
+        // Most Purchased Products / Interest
         if (!empty($input['most_purchased_products'])) {
             $products = (array) $input['most_purchased_products'];
             $query->where(function ($q) use ($products) {
                 foreach ($products as $prod) {
                     $q->orWhere('most_purchased_products', 'ilike', '%' . $prod . '%');
+                }
+            });
+        }
+
+        // Search by Interest (IDA 26 Catalogue)
+        if (!empty($input['interest'])) {
+            $interests = (array) $input['interest'];
+            $query->where(function ($q) use ($interests) {
+                foreach ($interests as $item) {
+                    $q->orWhere('most_purchased_products', 'ilike', '%' . $item . '%')
+                      ->orWhere('tags', 'ilike', '%' . $item . '%')
+                      ->orWhere('top_applications', 'ilike', '%' . $item . '%');
+                }
+            });
+        }
+
+        // Banking & Finance Behavior (Smart Mapping)
+        if (!empty($input['banking_behavior'])) {
+            $banking = (array) $input['banking_behavior'];
+            $query->where(function ($q) use ($banking) {
+                foreach ($banking as $b) {
+                    $bNorm = strtolower(trim($b));
+                    if (str_contains($bNorm, 'paylater')) {
+                        $q->orWhere('tags', 'ilike', '%Paylater%')
+                          ->orWhere('tags', 'ilike', '%Spender%')
+                          ->orWhere('payment_history', 'ilike', '%Smooth%')
+                          ->orWhere('top_applications', 'ilike', '%Shopee%')
+                          ->orWhere('top_applications', 'ilike', '%Tokopedia%')
+                          ->orWhere('top_applications', 'ilike', '%Gojek%')
+                          ->orWhere('credit_score', '>', 600);
+                    } elseif (str_contains($bNorm, 'loan') || str_contains($bNorm, 'pinjaman')) {
+                        $q->orWhere('tags', 'ilike', '%Loan%')
+                          ->orWhere('tags', 'ilike', '%Kredit%')
+                          ->orWhere('outstanding_amount', '>', 0);
+                    } elseif (str_contains($bNorm, 'bank')) {
+                        $q->orWhereNotNull('preferred_banks')
+                          ->orWhere('top_applications', 'ilike', '%BCA%')
+                          ->orWhere('top_applications', 'ilike', '%Mandiri%')
+                          ->orWhere('top_applications', 'ilike', '%BRI%')
+                          ->orWhere('tags', 'ilike', '%Bank%');
+                    } else {
+                        $q->orWhere('preferred_banks', 'ilike', '%' . $b . '%')
+                          ->orWhere('tags', 'ilike', '%' . $b . '%');
+                    }
+                }
+            });
+        }
+
+        // Lifestyle Indicator (Smart Mapping)
+        if (!empty($input['lifestyle'])) {
+            $lifestyle = (array) $input['lifestyle'];
+            $query->where(function ($q) use ($lifestyle) {
+                foreach ($lifestyle as $l) {
+                    $lNorm = strtolower(trim($l));
+                    if (str_contains($lNorm, 'social')) {
+                        $q->orWhereNotNull('social_media')
+                          ->orWhere('top_applications', 'ilike', '%Instagram%')
+                          ->orWhere('top_applications', 'ilike', '%TikTok%')
+                          ->orWhere('tags', 'ilike', '%Social%');
+                    } elseif (str_contains($lNorm, 'abroad') || str_contains($lNorm, 'travel')) {
+                        $q->orWhere('most_purchased_products', 'ilike', '%Flight%')
+                          ->orWhere('most_purchased_products', 'ilike', '%Travel%')
+                          ->orWhere('top_applications', 'ilike', '%Traveloka%')
+                          ->orWhere('tags', 'ilike', '%Travel%');
+                    } elseif (str_contains($lNorm, 'beauty') || str_contains($lNorm, 'health')) {
+                        $q->orWhere('most_purchased_products', 'ilike', '%Apparel%')
+                          ->orWhere('top_applications', 'ilike', '%Strava%')
+                          ->orWhere('tags', 'ilike', '%Athlete%')
+                          ->orWhere('tags', 'ilike', '%Runner%');
+                    } elseif (str_contains($lNorm, 'food')) {
+                        $q->orWhere('frequently_visited_places', 'ilike', '%Dining%')
+                          ->orWhere('frequently_visited_places', 'ilike', '%Restaurant%')
+                          ->orWhere('tags', 'ilike', '%Food%');
+                    } elseif (str_contains($lNorm, 'commerce') || str_contains($lNorm, 'shop')) {
+                        $q->orWhere('top_applications', 'ilike', '%Tokopedia%')
+                          ->orWhere('top_applications', 'ilike', '%Shopee%')
+                          ->orWhere('tags', 'ilike', '%Spender%');
+                    } else {
+                        $q->orWhere('tags', 'ilike', '%' . $l . '%')
+                          ->orWhere('frequently_visited_places', 'ilike', '%' . $l . '%');
+                    }
                 }
             });
         }
@@ -156,12 +377,51 @@ class IdaService
             });
         }
 
-        // Top Application
+        // Top Application (Smart Mapping to Telco App Categories)
         if (!empty($input['top_application'])) {
             $apps = (array) $input['top_application'];
             $query->where(function ($q) use ($apps) {
                 foreach ($apps as $app) {
-                    $q->orWhere('top_applications', 'ilike', '%' . $app . '%');
+                    $appNorm = strtolower(trim($app));
+                    if (str_contains($appNorm, 'bank')) {
+                        $q->orWhere('top_applications', 'ilike', '%BCA%')
+                          ->orWhere('top_applications', 'ilike', '%Mandiri%')
+                          ->orWhere('top_applications', 'ilike', '%BRI%')
+                          ->orWhere('top_applications', 'ilike', '%BNI%')
+                          ->orWhere('top_applications', 'ilike', '%CIMB%')
+                          ->orWhere('top_applications', 'ilike', '%Jenius%')
+                          ->orWhere('top_applications', 'ilike', '%OCTO%')
+                          ->orWhere('top_applications', 'ilike', '%Bank%')
+                          ->orWhereNotNull('preferred_banks');
+                    } elseif (str_contains($appNorm, 'shop') || str_contains($appNorm, 'e-commerce')) {
+                        $q->orWhere('top_applications', 'ilike', '%Tokopedia%')
+                          ->orWhere('top_applications', 'ilike', '%Shopee%')
+                          ->orWhere('top_applications', 'ilike', '%Blibli%')
+                          ->orWhere('top_applications', 'ilike', '%Lazada%')
+                          ->orWhere('top_applications', 'ilike', '%TikTok%')
+                          ->orWhere('top_applications', 'ilike', '%Bukalapak%');
+                    } elseif (str_contains($appNorm, 'stream')) {
+                        $q->orWhere('top_applications', 'ilike', '%Spotify%')
+                          ->orWhere('top_applications', 'ilike', '%Netflix%')
+                          ->orWhere('top_applications', 'ilike', '%YouTube%')
+                          ->orWhere('top_applications', 'ilike', '%Disney%')
+                          ->orWhere('top_applications', 'ilike', '%Vidio%');
+                    } elseif (str_contains($appNorm, 'gam')) {
+                        $q->orWhere('top_applications', 'ilike', '%Mobile Legends%')
+                          ->orWhere('top_applications', 'ilike', '%PUBG%')
+                          ->orWhere('top_applications', 'ilike', '%Free Fire%')
+                          ->orWhere('top_applications', 'ilike', '%Steam%')
+                          ->orWhere('top_applications', 'ilike', '%Game%');
+                    } elseif (str_contains($appNorm, 'social') || str_contains($appNorm, 'chat')) {
+                        $q->orWhere('top_applications', 'ilike', '%WhatsApp%')
+                          ->orWhere('top_applications', 'ilike', '%Instagram%')
+                          ->orWhere('top_applications', 'ilike', '%Telegram%')
+                          ->orWhere('top_applications', 'ilike', '%Twitter%')
+                          ->orWhere('top_applications', 'ilike', '%TikTok%')
+                          ->orWhereNotNull('social_media');
+                    } else {
+                        $q->orWhere('top_applications', 'ilike', '%' . $app . '%');
+                    }
                 }
             });
         }

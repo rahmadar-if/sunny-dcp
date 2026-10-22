@@ -2,10 +2,15 @@
     <!-- SECTION 1: Target & Filter Summary -->
     <div class="col-12">
         <div class="card custom-card shadow-sm mb-3">
+            <!-- Synchronized WhatsApp Template Selector Mount Point -->
+            <div class="px-3 py-0 border-bottom bg-white" id="idaTemplateMountPoint" style="display: none;"></div>
             <div class="card-header justify-content-between d-flex align-items-center flex-wrap gap-2">
                 <div class="d-flex align-items-center flex-wrap gap-2">
                     <button type="button" class="btn btn-primary btn-sm" id="btnOpenIdaFilter">
                         + Configure Target Filter
+                    </button>
+                    <button type="button" class="btn btn-success btn-sm" id="btnOpenTestWaBlast">
+                        <i class="ri-whatsapp-line me-1"></i> Send Test WhatsApp
                     </button>
                     <button type="button" class="btn btn-outline-success btn-sm" id="btnSimulateConsent">
                         Customer Consent
@@ -116,14 +121,98 @@
         }
 
         const btnOpenFilter = document.getElementById('btnOpenIdaFilter');
+        const btnOpenTestWa = document.getElementById('btnOpenTestWaBlast');
         const filterForm = document.getElementById('idaCampaignFilterForm');
         const tableBody = document.getElementById('idaConsentedTableBody');
+
+        // Bi-directional Synchronized Template Selector between WhatsApp Template & Data Enrichment
+        let originalParent = null;
+        const idaMountPoint = document.getElementById('idaTemplateMountPoint');
+
+        function syncTemplateToTab(tabName) {
+            const f = document.getElementById('wa-blast-page-wa_template_detail_id');
+            const col = f ? (f.closest('.col-md-7') || f.closest('.w-100')) : null;
+            if (!col) return;
+
+            if (!originalParent && col.parentElement && col.parentElement.id !== 'idaTemplateMountPoint') {
+                originalParent = col.parentElement;
+            }
+
+            if (tabName === 'ida') {
+                if (idaMountPoint) {
+                    idaMountPoint.style.display = 'block';
+                    if (!idaMountPoint.contains(col)) {
+                        idaMountPoint.appendChild(col);
+                        col.classList.remove('col-md-7');
+                        col.classList.add('w-100');
+                    }
+                }
+            } else if (tabName === 'wa_template') {
+                if (idaMountPoint) {
+                    idaMountPoint.style.display = 'none';
+                }
+                if (originalParent && !originalParent.contains(col)) {
+                    const previewCol = originalParent.querySelector('.col-md-5');
+                    if (previewCol) {
+                        originalParent.insertBefore(col, previewCol);
+                    } else {
+                        originalParent.appendChild(col);
+                    }
+                    col.classList.remove('w-100');
+                    col.classList.add('col-md-7');
+                }
+            }
+        }
+
+        // Initialize state based on active tab
+        const isIdaInitiallyActive = document.querySelector('#wa-blast-page-tabs_ida')?.classList.contains('active');
+        syncTemplateToTab(isIdaInitiallyActive ? 'ida' : 'wa_template');
+        setTimeout(() => syncTemplateToTab(isIdaInitiallyActive ? 'ida' : 'wa_template'), 200);
+
+        // Listen for tab switches
+        const btnTabWa = document.getElementById('wa-blast-page-tabs_wa_template_button');
+        const btnTabIda = document.getElementById('wa-blast-page-tabs_ida_button');
+
+        if (btnTabIda) {
+            btnTabIda.addEventListener('shown.bs.tab', () => syncTemplateToTab('ida'));
+            btnTabIda.addEventListener('click', () => syncTemplateToTab('ida'));
+        }
+        if (btnTabWa) {
+            btnTabWa.addEventListener('shown.bs.tab', () => syncTemplateToTab('wa_template'));
+            btnTabWa.addEventListener('click', () => syncTemplateToTab('wa_template'));
+        }
+
+        document.addEventListener('shown.bs.tab', function(e) {
+            const target = e.target.getAttribute('data-bs-target') || e.target.getAttribute('href');
+            if (target === '#wa-blast-page-tabs_ida') {
+                syncTemplateToTab('ida');
+            } else if (target === '#wa-blast-page-tabs_wa_template') {
+                syncTemplateToTab('wa_template');
+            }
+        });
 
         if (btnOpenFilter) {
             btnOpenFilter.addEventListener('click', function(e) {
                 e.preventDefault();
                 const m = getFilterModal();
                 if (m) m.show();
+            });
+        }
+
+        if (btnOpenTestWa) {
+            btnOpenTestWa.addEventListener('click', function(e) {
+                e.preventDefault();
+                const mainTestBtn = document.getElementById('wa-blast-page-test-email');
+                if (mainTestBtn) {
+                    mainTestBtn.removeAttribute('disabled');
+                    mainTestBtn.classList.remove('disabled');
+                    mainTestBtn.click();
+                } else {
+                    const testModalEl = document.getElementById('wa-blast-test-wa-modal');
+                    if (testModalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                        bootstrap.Modal.getOrCreateInstance(testModalEl).show();
+                    }
+                }
             });
         }
 
@@ -172,30 +261,62 @@
                     appendFilterBadge(filterContainer, `Operator: ${filters.operator}`);
                     hasAny = true;
                 }
-                if (filters.gender && filters.gender !== 'All') {
+                // 1. Search by Gender (Always display, including 'All')
+                if (filters.gender) {
                     appendFilterBadge(filterContainer, `Gender: ${filters.gender}`);
                     hasAny = true;
+                } else {
+                    appendFilterBadge(filterContainer, 'Gender: All');
+                    hasAny = true;
                 }
+
+                // 2. Search by Age Range (18-70 years default)
                 if (filters.age_min || filters.age_max) {
                     const min = filters.age_min || '18';
-                    const max = filters.age_max || '80';
-                    appendFilterBadge(filterContainer, `Age: ${min}-${max}`);
+                    const max = filters.age_max || '70';
+                    appendFilterBadge(filterContainer, `Age: ${min}-${max} Yrs`);
+                    hasAny = true;
+                } else {
+                    appendFilterBadge(filterContainer, 'Age: 18-70 Yrs');
                     hasAny = true;
                 }
-                if (filters.residential_area && filters.residential_area.length) {
-                    appendFilterBadge(filterContainer, `Area: ${filters.residential_area.join(', ')}`);
+
+                // 3. Search by Region (City)
+                if (filters.city && (Array.isArray(filters.city) ? filters.city.length : filters.city)) {
+                    const cityVal = Array.isArray(filters.city) ? filters.city.join(', ') : filters.city;
+                    appendFilterBadge(filterContainer, `Region: ${cityVal}`);
                     hasAny = true;
                 }
-                if (filters.city && filters.city.length) {
-                    appendFilterBadge(filterContainer, `City: ${filters.city.join(', ')}`);
+
+                // 4. Search by Area (Dependent Sub-City / District)
+                if (filters.search_by_area && (Array.isArray(filters.search_by_area) ? filters.search_by_area.length : filters.search_by_area)) {
+                    const areaVal = Array.isArray(filters.search_by_area) ? filters.search_by_area.join(', ') : filters.search_by_area;
+                    appendFilterBadge(filterContainer, `Area: ${areaVal}`);
+                    hasAny = true;
+                } else {
+                    appendFilterBadge(filterContainer, 'Area: All Area');
                     hasAny = true;
                 }
-                if (filters.job_workplace) {
-                    appendFilterBadge(filterContainer, `Job: ${filters.job_workplace}`);
+
+                // 5. Search by Interest (Full list of selected interests)
+                if (filters.interest && (Array.isArray(filters.interest) ? filters.interest.length : filters.interest)) {
+                    const intVal = Array.isArray(filters.interest) ? filters.interest.join(', ') : filters.interest;
+                    appendFilterBadge(filterContainer, `Interests: ${intVal}`);
                     hasAny = true;
                 }
-                if (filters.top_application && filters.top_application.length) {
-                    appendFilterBadge(filterContainer, `App: ${filters.top_application.join(', ')}`);
+
+                // 6. Search by Income
+                if (filters.income && (Array.isArray(filters.income) ? filters.income.length : filters.income)) {
+                    const incomeVal = Array.isArray(filters.income) ? filters.income.join(', ') : filters.income;
+                    appendFilterBadge(filterContainer, `Income: ${incomeVal}`);
+                    hasAny = true;
+                }
+                if (filters.banking_behavior && filters.banking_behavior.length) {
+                    appendFilterBadge(filterContainer, `Banking: ${filters.banking_behavior.join(', ')}`);
+                    hasAny = true;
+                }
+                if (filters.lifestyle && filters.lifestyle.length) {
+                    appendFilterBadge(filterContainer, `Lifestyle: ${filters.lifestyle.join(', ')}`);
                     hasAny = true;
                 }
                 if (filters.competitor_product && filters.competitor_product.length) {
@@ -224,6 +345,10 @@
                 }
                 if (filters.exclude_blacklist) {
                     appendFilterBadge(filterContainer, 'No Blacklist');
+                    hasAny = true;
+                }
+                if (filters.exclude_negative_credit) {
+                    appendFilterBadge(filterContainer, 'No Bad Credit');
                     hasAny = true;
                 }
                 if (filters.min_credit_score) {
@@ -272,6 +397,25 @@
             if (filters.job_workplace) {
                 const el = filterForm.querySelector('#fFilterJob');
                 if (el) el.value = filters.job_workplace;
+            }
+            if (filters.city || filters.search_by_area) {
+                const regArr = Array.isArray(filters.city) ? filters.city : (filters.city ? [filters.city] : []);
+                const areaArr = Array.isArray(filters.search_by_area) ? filters.search_by_area : (filters.search_by_area ? [filters.search_by_area] : []);
+                if (typeof window.updateIdaRegionAndArea === 'function') {
+                    window.updateIdaRegionAndArea(regArr, areaArr);
+                }
+            }
+            if (filters.interest) {
+                const intArr = Array.isArray(filters.interest) ? filters.interest : [filters.interest];
+                if (typeof window.updateIdaInterests === 'function') {
+                    window.updateIdaInterests(intArr);
+                }
+            }
+            if (filters.income && Array.isArray(filters.income)) {
+                filters.income.forEach(inc => {
+                    const chk = filterForm.querySelector(`input[name="income[]"][value="${inc}"]`);
+                    if (chk) chk.checked = true;
+                });
             }
             if (filters.min_credit_score) {
                 const slider = filterForm.querySelector('#fCreditScoreRange');
@@ -395,11 +539,7 @@
                     if (m) m.hide();
 
                     renderConfig(json.data.config, json.data.consented_profiles);
-
-                    // Otomatis jalankan simulate customer consent
-                    setTimeout(() => {
-                        triggerConsentSimulation();
-                    }, 500);
+                    showSunnyAlert('Success', 'Target filter successfully applied.', 'success');
                 } else {
                     showSunnyAlert('Error', json.message || 'Failed to apply filters.', 'error');
                 }

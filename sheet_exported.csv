@@ -1,0 +1,117 @@
+Sunny DCP - Filter Enrichment,,,,
+,,,,
+Section,Filter Field,Pilihan Opsi / Nilai Input,Tipe Input,Keterangan
+Customer Profile Data,Gender,All,🔘Radio Button,Pilihan default
+,,Male,🔘Radio Button,Pria
+,,Female,🔘Radio Button,Wanita
+,Age Range,Min Age (contoh: 21),🔢Number Input,Usia minimal
+,,Max Age (contoh: 55),🔢Number Input,Usia maksimal
+,Residential Area / Class,High Class,🔲Checkbox,SES Atas / Perumahan elit
+,,Middle Class,🔲Checkbox,SES Menengah
+,,Low Class,🔲Checkbox,SES Mass / Bawah
+,Region / City,Seluruh Indonesia (All),🔲Checkbox / Multi-select,Nasional
+,,Seluruh Pulau Jawa,🔲Checkbox / Multi-select,Cakupan pulau
+,,Jabodetabek,🔲Checkbox / Multi-select,Aglomerasi
+,,Jakarta,🔲Checkbox / Multi-select,Kota
+,,Bogor,🔲Checkbox / Multi-select,Kota
+,,Depok,🔲Checkbox / Multi-select,Kota
+,,Tangerang,🔲Checkbox / Multi-select,Kota
+,,Tangerang Selatan,🔲Checkbox / Multi-select,Kota
+,,Bekasi,🔲Checkbox / Multi-select,Kota
+,,Banten,🔲Checkbox / Multi-select,Provinsi / Area
+,,Bandung,🔲Checkbox / Multi-select,Kota
+,,Cirebon,🔲Checkbox / Multi-select,Kota
+,,Semarang,🔲Checkbox / Multi-select,Kota
+,,Solo (Surakarta),🔲Checkbox / Multi-select,Kota
+,,Yogyakarta,🔲Checkbox / Multi-select,Kota / Provinsi
+,,Surabaya,🔲Checkbox / Multi-select,Kota
+,,Malang,🔲Checkbox / Multi-select,Kota
+,,Sidoarjo,🔲Checkbox / Multi-select,Kota
+,,Bali,🔲Checkbox / Multi-select,Pulau / Provinsi
+,,Denpasar,🔲Checkbox / Multi-select,Kota
+,,Lombok / NTB,🔲Checkbox / Multi-select,Wilayah
+,,NTT (Labuan Bajo & Kupang),🔲Checkbox / Multi-select,Wilayah
+,,Seluruh Sumatera,🔲Checkbox / Multi-select,Cakupan pulau
+,,Medan,🔲Checkbox / Multi-select,Kota
+,,Batam,🔲Checkbox / Multi-select,Kota
+,,Pekanbaru,🔲Checkbox / Multi-select,Kota
+,,Palembang,🔲Checkbox / Multi-select,Kota
+,,Bandar Lampung,🔲Checkbox / Multi-select,Kota
+,,Seluruh Kalimantan,🔲Checkbox / Multi-select,Cakupan pulau
+,,Balikpapan,🔲Checkbox / Multi-select,Kota
+,,Samarinda,🔲Checkbox / Multi-select,Kota
+,,Kawasan IKN,🔲Checkbox / Multi-select,Kawasan khusus
+,,Banjarmasin,🔲Checkbox / Multi-select,Kota
+,,Pontianak,🔲Checkbox / Multi-select,Kota
+,,Seluruh Sulawesi,🔲Checkbox / Multi-select,Cakupan pulau
+,,Makassar,🔲Checkbox / Multi-select,Kota
+,,Manado,🔲Checkbox / Multi-select,Kota
+,,Maluku & Papua,🔲Checkbox / Multi-select,Wilayah
+,,Jayapura,🔲Checkbox / Multi-select,Kota
+,Job & Workplace,"(e.g. Director, Manager, Tech, Banking, BUMN, ASN, Guru)",🔤Text Input,Input teks fleksibel
+,Social Media Interest,Short Video & Entertainment (TikTok / Reels),🔲Checkbox,Kategori sosmed
+,,Visual & Lifestyle (Instagram),🔲Checkbox,Kategori sosmed
+,,Professional & Career (LinkedIn),🔲Checkbox,Kategori sosmed
+,,News & Discussion (X / Twitter),🔲Checkbox,Kategori sosmed
+,,Instant Messaging Active (WhatsApp / Telegram),🔲Checkbox,Kategori sosmed
+Behavior Data,Top Application Category,Marketplace & E-Commerce,🔲Checkbox,"Tokopedia, Shopee, dll."
+,,Sports & Fitness Tracker,🔲Checkbox,"Strava, Nike Run, dll."
+,,Mobile Banking & Keuangan,🔲Checkbox,"BCA Mobile, Livin, dll."
+,,E-Wallet & Digital Payment,🔲Checkbox,"GoPay, OVO, Dana"
+,,Investasi & Saham,🔲Checkbox,"Bibit, Stockbit, dll."
+,,Music & Audio Streaming,🔲Checkbox,"Spotify, Apple Music"
+,,Video Streaming & VOD,🔲Checkbox,"Netflix, YouTube, Vidio"
+,,Food Delivery & Ojek Online,🔲Checkbox,"Gojek, Grab"
+,,Travel & Tiket Online,🔲Checkbox,"Traveloka, Tiket.com"
+,,Mobile Gaming,🔲Checkbox,"MLBB, PUBG, dll."
+,Buying Power,Ultra High,🔲Checkbox,Pengeluaran data/pulsa & daya beli tertinggi
+,,High,🔲Checkbox,Daya beli tinggi
+,,Medium,🔲Checkbox,Daya beli menengah
+,,Low,🔲Checkbox,Daya beli standar/mass
+,Competitor Product Usage,Telkomsel,🔲Checkbox,Indikator multi-SIM / kompetitor
+,,XL Axiata,🔲Checkbox,Indikator multi-SIM / kompetitor
+,,Smartfren,🔲Checkbox,Indikator multi-SIM / kompetitor
+,,Indosat / IM3,🔲Checkbox,Pengguna jaringan Indosat
+,Phone & Device Type,Apple iPhone,🔲Checkbox,Merk HP populer
+,,Samsung,🔲Checkbox,Merk HP populer
+,,Xiaomi,🔲Checkbox,Merk HP populer
+,,Oppo,🔲Checkbox,Merk HP populer
+,,Vivo,🔲Checkbox,Merk HP populer
+,,Realme,🔲Checkbox,Merk HP populer
+,,Infinix / Transsion,🔲Checkbox,Merk HP populer
+,,Google Pixel,🔲Checkbox,Merk HP
+,,Other Brands,🔲Checkbox,Merk lainnya
+,Preferred Banks / FinTech,Bank BCA,🔲Checkbox,Transaksi / ekosistem perbankan
+,,Bank Mandiri,🔲Checkbox,Transaksi / ekosistem perbankan
+,,Bank BRI,🔲Checkbox,Transaksi / ekosistem perbankan
+,,Bank BNI,🔲Checkbox,Transaksi / ekosistem perbankan
+,,Bank CIMB Niaga,🔲Checkbox,Transaksi / ekosistem perbankan
+,,Bank Digital / Neobank,🔲Checkbox,"Jago, SeaBank, Jenius, Blu"
+,Frequently Visited Places (POI),Area Perkantoran & SCBD / CBD,🔲Checkbox,Gedung kantor pusat
+,,Mall & Shopping Center Mewah,🔲Checkbox,"Plaza Senayan, GI, dsb."
+,,Kawasan Olahraga (GBK & Sport Venues),🔲Checkbox,Area lari & outdoor
+,,Bandara & Stasiun Kereta Cepat,🔲Checkbox,Mobilitas tinggi / traveler
+,,Kawasan Universitas / Kampus,🔲Checkbox,Mahasiswa & akademisi
+,Most Purchased Products / Interest,Perlengkapan Olahraga & Sepatu Lari,🔲Checkbox,Kategori belanja
+,,Smartwatch & Gadget Tech,🔲Checkbox,Kategori belanja
+,,Fine Dining & Kuliner Lifestyle,🔲Checkbox,Kategori belanja
+,,Tiket Pesawat & Traveling,🔲Checkbox,Kategori belanja
+,,Fashion & Pakaian Branded,🔲Checkbox,Kategori belanja
+Eligibility Check,Risk Exclusions,Exclude Gambling Indicators,🔲Checkbox,Hindari nomor berpola judi online
+,,Exclude Blacklist,🔲Checkbox,Hindari nomor fraud / bermasalah
+,,Exclude Negative Credit / Gagal Bayar,🔲Checkbox,Hindari histori kredit buruk
+,Payment History,Smooth / Lancar,🔲Checkbox,Histori tagihan lancar
+,,On-time / Tepat Waktu,🔲Checkbox,Tidak pernah telat
+,,Late > 30 Days,🔲Checkbox,Riwayat telat bayar
+,Outstanding Limit,No Limit,🔻Dropdown,Tanpa batas limit
+,,< Rp 5.000.000,🔻Dropdown,Limit tagihan aktif
+,,< Rp 10.000.000,🔻Dropdown,Limit tagihan aktif
+,,< Rp 20.000.000,🔻Dropdown,Limit tagihan aktif
+,,> Rp 20.000.000,🔻Dropdown,Limit tagihan tinggi
+,Fraud Risk Level,Low Risk,🔲Checkbox,Profil nomor sangat aman
+,,Medium Risk,🔲Checkbox,Profil nomor risiko sedang
+,,High Risk,🔲Checkbox,Profil nomor risiko tinggi
+,Phone Line Status,Active Lines Only,🔲Checkbox,Hanya nomor aktif (bukan masa tenggang)
+,Line Tenure / Usia Nomor,> 1 Tahun Aktif,🔲Checkbox,Nomor stabil / nomor utama
+,Line Subscription,Pascabayar (Postpaid) Saja,🔲Checkbox,Pelanggan langganan prioritas
+,,Prabayar (Prepaid),🔲Checkbox,Pelanggan isi ulang

@@ -344,10 +344,17 @@ class ContactController extends Controller
             'gender' => $request->input('gender', 'All'),
             'age_min' => $request->filled('age_min') ? (int) $request->input('age_min') : null,
             'age_max' => $request->filled('age_max') ? (int) $request->input('age_max') : null,
+            'age_group' => $request->input('age_group', []),
+            'life_phase' => $request->input('life_phase', []),
+            'location_tier' => $request->input('location_tier', []),
+            'location_anchor' => $request->input('location_anchor', []),
+            'residential_type' => $request->input('residential_type', []),
             'residential_area' => $request->input('residential_area', []),
             'city' => $request->input('city', []),
             'buying_power' => $request->input('buying_power', []),
             'top_application' => $request->input('top_application', []),
+            'lifestyle' => $request->input('lifestyle', []),
+            'banking_behavior' => $request->input('banking_behavior', []),
             'phone_device_type' => $request->input('phone_device_type', []),
             'competitor_product' => $request->input('competitor_product', []),
             'frequently_visited_places' => $request->input('frequently_visited_places', []),
@@ -371,6 +378,21 @@ class ContactController extends Controller
             $min = $filters['age_min'] ?? 18;
             $max = $filters['age_max'] ?? 80;
             $activeFilterBadges[] = "Age: {$min}-{$max}";
+        }
+        if (!empty($filters['age_group'])) {
+            $activeFilterBadges[] = 'Age Group: ' . implode(', ', (array) $filters['age_group']);
+        }
+        if (!empty($filters['life_phase'])) {
+            $activeFilterBadges[] = 'Phase: ' . implode(', ', (array) $filters['life_phase']);
+        }
+        if (!empty($filters['location_tier'])) {
+            $activeFilterBadges[] = 'Tier: ' . implode(', ', (array) $filters['location_tier']);
+        }
+        if (!empty($filters['lifestyle'])) {
+            $activeFilterBadges[] = 'Lifestyle: ' . implode(', ', (array) $filters['lifestyle']);
+        }
+        if (!empty($filters['banking_behavior'])) {
+            $activeFilterBadges[] = 'Banking: ' . implode(', ', (array) $filters['banking_behavior']);
         }
         if (!empty($filters['residential_area'])) {
             $activeFilterBadges[] = 'Area: ' . implode(', ', (array) $filters['residential_area']);
@@ -418,7 +440,7 @@ class ContactController extends Controller
                 }
             }
         } else {
-            // Query matching profiles through IdaService
+            // Query matching profiles through IdaService with Smart Telco Mapping
             $matchingProfiles = $this->idaService->queryAudience($filters)->get();
             $profileContactIds = $matchingProfiles->pluck('contact_id')->filter()->toArray();
             $profilePhones = $matchingProfiles->pluck('phone_number')->map(fn($p) => preg_replace('/[^0-9]/', '', $p))->filter()->toArray();
@@ -428,11 +450,23 @@ class ContactController extends Controller
                 $cPhone = preg_replace('/[^0-9]/', '', $c->primary_mobile_phone ?? $c->primary_phone ?? '');
                 $cName = strtolower(trim($c->name));
 
-                $isEnrichedMatch = in_array($c->id, $profileContactIds)
-                    || ($cPhone && in_array($cPhone, $profilePhones))
-                    || in_array($cName, $profileNames);
+                // Find matching profile for this contact
+                $matchedProfile = $matchingProfiles->first(function($p) use ($c, $cPhone, $cName) {
+                    $pPhone = preg_replace('/[^0-9]/', '', $p->phone_number ?? '');
+                    return $p->contact_id === $c->id
+                        || ($cPhone && $pPhone && ($pPhone === $cPhone || str_ends_with($pPhone, substr($cPhone, -8)) || str_ends_with($cPhone, substr($pPhone, -8))))
+                        || strtolower(trim($p->name)) === $cName;
+                });
 
-                if ($isEnrichedMatch) {
+                if ($matchedProfile) {
+                    // Auto-enrich this contact if not yet enriched or linked (per architecture diagram)
+                    if ($matchedProfile->contact_id !== $c->id || $matchedProfile->enrichment_status !== 'Enriched') {
+                        $matchedProfile->contact_id = $c->id;
+                        $matchedProfile->enrichment_status = 'Enriched';
+                        $matchedProfile->customer_consent = true;
+                        $matchedProfile->save();
+                    }
+
                     $matchingContactIds[] = $c->id;
                     $enrichedMatchingCount++;
                 } elseif ($contactSource === 'all' && empty($activeFilterBadges)) {
